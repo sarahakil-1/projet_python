@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Calcul Santé</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        h1 { color: #333; }
+        .result { margin-top: 10px; color: green; }
+        input, select { margin: 5px 0; padding: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Calculateur de Santé</h1>
+
+    <h2>Calcul de l'IMC</h2>
+    <input type="number" id="bmiHeight" placeholder="Taille (m)" step="0.01">
+    <input type="number" id="bmiWeight" placeholder="Poids (kg)" step="0.1">
+    <button onclick="calculateBMI()">Calculer IMC</button>
+    <div class="result" id="bmiResult"></div>
+
+    <h2>Calcul du BMR</h2>
+    <input type="number" id="bmrHeight" placeholder="Taille (cm)">
+    <input type="number" id="bmrWeight" placeholder="Poids (kg)">
+    <input type="number" id="bmrAge" placeholder="Âge">
+    <select id="bmrGender">
+        <option value="male">Homme</option>
+        <option value="female">Femme</option>
+    </select>
+    <button onclick="calculateBMR()">Calculer BMR</button>
+    <div class="result" id="bmrResult"></div>
+
+    <script>
+        async function calculateBMI() {
+            const height = parseFloat(document.getElementById('bmiHeight').value);
+            const weight = parseFloat(document.getElementById('bmiWeight').value);
+            const res = await fetch('/bmi', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ height, weight })
+            });
+            const data = await res.json();
+            document.getElementById('bmiResult').innerText = `IMC : ${data.bmi}`;
+        }
+
+        async function calculateBMR() {
+            const height = parseFloat(document.getElementById('bmrHeight').value);
+            const weight = parseFloat(document.getElementById('bmrWeight').value);
+            const age = parseInt(document.getElementById('bmrAge').value);
+            const gender = document.getElementById('bmrGender').value;
+            const res = await fetch('/bmr', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ height, weight, age, gender })
+            });
+            const data = await res.json();
+            document.getElementById('bmrResult').innerText = `BMR : ${data.bmr}`;
+        }
+    </script>
+</body>
+</html>
