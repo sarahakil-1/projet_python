@@ -1,50 +1,79 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Calculateur de Santé</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Calcul Santé</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 500px;
+            margin: auto;
+            background-color: #f5f5f5;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .result {
+            margin-top: 10px;
+            color: green;
+            font-weight: bold;
+        }
+        input, select, button {
+            display: block;
+            width: 100%;
+            margin: 5px 0 15px;
+            padding: 10px;
+            font-size: 1em;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Calculateur de Santé</h1>
+    <h1>Calculateur de Santé</h1>
 
-        <!-- Formulaire IMC -->
-        <h2>Calcul de l'IMC</h2>
-        <form onsubmit="event.preventDefault(); calculateBMI();">
-            <input type="number" id="bmiHeight" placeholder="Taille (en mètres, ex: 1.75)" step="0.01" required>
-            <input type="number" id="bmiWeight" placeholder="Poids (kg)" step="0.1" required>
-            <button type="submit">Calculer IMC</button>
-        </form>
-        <div class="result" id="bmi-result"></div>
+    <h2>Calcul de l'IMC</h2>
+    <input type="number" id="bmiHeight" placeholder="Taille (cm)">
+    <input type="number" id="bmiWeight" placeholder="Poids (kg)">
+    <button onclick="calculateBMI()">Calculer IMC</button>
+    <div class="result" id="bmiResult"></div>
 
-        <!-- Formulaire BMR -->
-        <h2>Calcul du BMR</h2>
-        <form onsubmit="event.preventDefault(); calculateBMR();">
-            <input type="number" id="bmrHeight" placeholder="Taille (en cm)" required>
-            <input type="number" id="bmrWeight" placeholder="Poids (kg)" required>
-            <input type="number" id="bmrAge" placeholder="Âge" required>
-            <select id="bmrGender" required>
-                <option value="">-- Sélectionnez le genre --</option>
-                <option value="male">Homme</option>
-                <option value="female">Femme</option>
-            </select>
-            <button type="submit">Calculer BMR</button>
-        </form>
-        <div class="result" id="bmr-result"></div>
-    </div>
+    <h2>Calcul du BMR</h2>
+    <input type="number" id="bmrHeight" placeholder="Taille (cm)">
+    <input type="number" id="bmrWeight" placeholder="Poids (kg)">
+    <input type="number" id="bmrAge" placeholder="Âge">
+    <select id="bmrGender">
+        <option value="male">Homme</option>
+        <option value="female">Femme</option>
+    </select>
+    <button onclick="calculateBMR()">Calculer BMR</button>
+    <div class="result" id="bmrResult"></div>
 
     <script>
         async function calculateBMI() {
-            const height = parseFloat(document.getElementById('bmiHeight').value);
+            let height = parseFloat(document.getElementById('bmiHeight').value);
             const weight = parseFloat(document.getElementById('bmiWeight').value);
-            const response = await fetch('/bmi', {
+
+            // Convertir en mètres si la taille est en cm
+            if (height > 3) {
+                height = height / 100;
+            }
+
+            const res = await fetch('/bmi', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ height, weight })
             });
-            const data = await response.json();
-            document.getElementById('bmi-result').innerText = `IMC : ${data.bmi}`;
+
+            const data = await res.json();
+            document.getElementById('bmiResult').innerText = `IMC : ${data.bmi}`;
         }
 
         async function calculateBMR() {
@@ -52,13 +81,15 @@
             const weight = parseFloat(document.getElementById('bmrWeight').value);
             const age = parseInt(document.getElementById('bmrAge').value);
             const gender = document.getElementById('bmrGender').value;
-            const response = await fetch('/bmr', {
+
+            const res = await fetch('/bmr', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ height, weight, age, gender })
             });
-            const data = await response.json();
-            document.getElementById('bmr-result').innerText = `BMR : ${data.bmr}`;
+
+            const data = await res.json();
+            document.getElementById('bmrResult').innerText = `BMR : ${data.bmr}`;
         }
     </script>
 </body>
